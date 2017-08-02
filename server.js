@@ -25,13 +25,13 @@ else {
 			ca: fs.readFileSync(__dirname + '/../../shared/config/ssl.ca', 'utf8').split('\n\n')
 		};
 		var httpsServer = https.createServer(credentials, app);
-		httpsServer.listen(port, null, function() {
+		httpsServer.listen(port, 'localhost', function() {
 			console.log('HTTPS server started: https://localhost');
 		});
 		port = 80;
 	}
 	var httpServer = http.createServer(app);
-	httpServer.listen(port, null, function() {
+	httpServer.listen(port, 'localhost', function() {
 		console.log('HTTP server started: http://localhost:' + port);
 	});
 }
