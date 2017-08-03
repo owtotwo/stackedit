@@ -84,7 +84,7 @@ define([
 				type: 'POST',
 				url: settings.couchdbUrl + '/_changes?' + $.param({
 					filter: '_doc_ids',
-					since: newChangeId,
+					since: 'now', // newChangeId,
 					include_docs: true,
 					attachments: true
 				}),
