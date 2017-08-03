@@ -1,8 +1,6 @@
-/* jshint -W015 */
 var gulp = require('gulp');
 var util = require('gulp-util');
 var clean = require('gulp-clean');
-var jshint = require('gulp-jshint');
 var requirejs = require('gulp-requirejs');
 var bowerRequirejs = require('bower-requirejs');
 var uglify = require('gulp-uglify');
@@ -29,25 +27,6 @@ gulp.task('constants', function() {
 	return gulp.src('./public/res/constants.js')
 		.pipe(replace(/constants\.VERSION = .*/, 'constants.VERSION = "' + getVersion() + '";'))
 		.pipe(gulp.dest('./public/res/'));
-});
-
-/** __________________________________________
- * JSHint
- */
-
-gulp.task('jshint', function() {
-	return gulp.src([
-		'./*.js',
-		'./app/**/*.js',
-		'./public/res/classes/**/*.js',
-		'./public/res/extensions/**/*.js',
-		'./public/res/helpers/**/*.js',
-		'./public/res/providers/**/*.js',
-		'./public/res/*.js'
-	])
-		.pipe(jshint())
-		.pipe(jshint.reporter('default'))
-		.pipe(jshint.reporter('fail'));
 });
 
 /** __________________________________________
@@ -214,7 +193,6 @@ gulp.task('clean', [
 ]);
 gulp.task('default', function(cb) {
 	runSequence([
-			'jshint',
 			'requirejs',
 			'less',
 			'copy-font',

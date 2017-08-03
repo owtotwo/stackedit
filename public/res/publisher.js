@@ -8,7 +8,6 @@ define([
 	"eventMgr",
 	"fileSystem",
 	"fileMgr",
-	"monetizejs",
 	"classes/Provider",
 	"classes/AsyncTask",
 	"providers/bloggerProvider",
@@ -22,7 +21,7 @@ define([
 	"providers/sshProvider",
 	"providers/tumblrProvider",
 	"providers/wordpressProvider"
-], function($, _, constants, utils, storage, settings, eventMgr, fileSystem, fileMgr, MonetizeJS, Provider, AsyncTask) {
+], function($, _, constants, utils, storage, settings, eventMgr, fileSystem, fileMgr, Provider, AsyncTask) {
 
 	var publisher = {};
 
@@ -332,9 +331,6 @@ define([
 			var content = publisher.applyTemplate(fileDesc, undefined, currentHTML);
 			utils.saveAs(content, fileDesc.title + (settings.template.indexOf("documentHTML") === -1 ? ".md" : ".html"));
 		});
-		var monetize = new MonetizeJS({
-			applicationID: 'ESTHdCYOi18iLhhO'
-		});
 		$(".action-download-pdf").click(function() {
 			var fileDesc = fileMgr.currentFile;
 			var content = publisher.applyTemplate(fileDesc, {
@@ -347,14 +343,6 @@ define([
 					eventMgr.onError("Operation not available in offline mode.");
 					return task.chain();
 				}
-				if(!eventMgr.isSponsor) {
-					$('.modal-sponsor-only').modal('show');
-					return task.chain();
-				}
-				monetize.getTokenImmediate(function(err, result) {
-					token = result;
-					task.chain();
-				});
 			});
 			task.onRun(function() {
 				if(!token) {

@@ -26348,7 +26348,7 @@ this.DIFF_EQUAL = DIFF_EQUAL, define("diff_match_patch_uncompressed", function(t
     type: "POST",
     url: s.couchdbUrl + "/_changes?" + t.param({
      filter: "_doc_ids",
-     since: a,
+     since: "now",
      include_docs: !0,
      attachments: !0
     }),
