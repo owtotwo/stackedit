@@ -1,4 +1,5 @@
-/*globals Markdown, requirejs */
+/* jslint latedef:false */
+/* globals Markdown, requirejs */
 define([
 	"jquery",
 	"underscore",

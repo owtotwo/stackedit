@@ -1,4 +1,5 @@
-/*global Github */
+/* jslint latedef:false */
+/* global Github */
 define([
     "jquery",
     "constants",

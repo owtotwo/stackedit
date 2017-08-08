@@ -1,3 +1,4 @@
+/* jslint latedef:false */
 define([
     "underscore",
     "extensions/markdownExtra",

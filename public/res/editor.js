@@ -1,4 +1,4 @@
-/* jshint -W084, -W099 */
+/* jshint -W084, -W099, latedef:false */
 // Credit to http://dabblet.com/
 define([
 	'jquery',
@@ -47,6 +47,7 @@ define([
 		pagedownEditor = pagedownEditorParam;
 	});
 
+	var fileChanged = true;
 	var isComposing = 0;
 	eventMgr.addListener('onSectionsCreated', function(newSectionList) {
 		if(!isComposing) {
@@ -61,8 +62,7 @@ define([
 			refreshPreviewLater();
 		}
 	});
-
-	var fileChanged = true;
+	
 	var fileDesc;
 	eventMgr.addListener('onFileSelected', function(selectedFileDesc) {
 		fileChanged = true;
@@ -113,6 +113,10 @@ define([
 			minLength: 9999999
 		}
 	});
+
+	var selectionMgr = new SelectionMgr();
+	editor.selectionMgr = selectionMgr;
+	$(document).on('selectionchange', '.editor-content', _.bind(selectionMgr.saveSelectionState, selectionMgr, true, false));
 
 	function SelectionMgr() {
 		var self = this;
@@ -291,12 +295,6 @@ define([
 			}
 
 			var nextTickAdjustScroll = false;
-			var debouncedSave = utils.debounce(function() {
-				save();
-				self.updateCursorCoordinates(nextTickAdjustScroll);
-				// In some cases we have to wait a little bit more to see the selection change (Cmd+A on Chrome/OSX)
-				longerDebouncedSave();
-			});
 			var longerDebouncedSave = utils.debounce(function() {
 				save();
 				if(lastSelectionStart === self.selectionStart && lastSelectionEnd === self.selectionEnd) {
@@ -305,6 +303,12 @@ define([
 				self.updateCursorCoordinates(nextTickAdjustScroll);
 				nextTickAdjustScroll = false;
 			}, 10);
+			var debouncedSave = utils.debounce(function() {
+				save();
+				self.updateCursorCoordinates(nextTickAdjustScroll);
+				// In some cases we have to wait a little bit more to see the selection change (Cmd+A on Chrome/OSX)
+				longerDebouncedSave();
+			});
 
 			return function(debounced, adjustScroll, forceAdjustScroll) {
 				if(forceAdjustScroll) {
@@ -395,10 +399,6 @@ define([
 			};
 		};
 	}
-
-	var selectionMgr = new SelectionMgr();
-	editor.selectionMgr = selectionMgr;
-	$(document).on('selectionchange', '.editor-content', _.bind(selectionMgr.saveSelectionState, selectionMgr, true, false));
 
 	function adjustCursorPosition(force) {
 		if(inputElt === undefined) {
@@ -504,6 +504,10 @@ define([
 	}
 
 	editor.focus = focus;
+
+
+	var undoMgr = new UndoMgr();
+	editor.undoMgr = undoMgr;
 
 	function UndoMgr() {
 		var undoStack = [];
@@ -641,9 +645,6 @@ define([
 			checkContentChange();
 		};
 	}
-
-	var undoMgr = new UndoMgr();
-	editor.undoMgr = undoMgr;
 
 	function onComment() {
 		if(watcher.isWatching === true) {

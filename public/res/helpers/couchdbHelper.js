@@ -1,3 +1,4 @@
+/* jslint latedef:false */
 define([
 	"jquery",
 	"underscore",

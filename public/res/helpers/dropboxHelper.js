@@ -1,4 +1,5 @@
-/*global Dropbox */
+/* jslint latedef:false */
+/* global Dropbox */
 define([
 	"jquery",
 	"underscore",

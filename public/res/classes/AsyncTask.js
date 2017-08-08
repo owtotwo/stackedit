@@ -1,3 +1,4 @@
+/* jshint latedef:nofunc */
 define([
     "underscore",
     "constants",

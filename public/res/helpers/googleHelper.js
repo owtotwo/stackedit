@@ -1,4 +1,5 @@
-/*global gapi, google */
+/* jslint latedef:false */
+/* global gapi, google */
 define([
 	"underscore",
 	"jquery",
