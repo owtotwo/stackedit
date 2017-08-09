@@ -5,10 +5,6 @@ StackEdit is a full-featured, open-source Markdown editor based on PageDown, the
 
 Main showcase: https://stackedit.io/.
 
-Support StackEdit:
-
-[![](https://cdn.monetizejs.com/resources/button-32.png)](https://monetizejs.com/authorize?client_id=ESTHdCYOi18iLhhO&summary=true)
-
 > **Note:**
 >
 > - Documents are stored in the [browser's local storage][1], which means they are not shared between different browsers/computers. Clearing your browser's data may delete all your local documents.

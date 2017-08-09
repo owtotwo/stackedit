@@ -8,7 +8,6 @@ define([
 	"eventMgr",
 	"fileSystem",
 	"fileMgr",
-	"monetizejs",
 	"classes/Provider",
 	"classes/AsyncTask",
 	"providers/bloggerProvider",
@@ -22,12 +21,12 @@ define([
 	"providers/sshProvider",
 	"providers/tumblrProvider",
 	"providers/wordpressProvider"
-], function($, _, constants, utils, storage, settings, eventMgr, fileSystem, fileMgr, MonetizeJS, Provider, AsyncTask) {
+], function ($, _, constants, utils, storage, settings, eventMgr, fileSystem, fileMgr, Provider, AsyncTask) {
 
 	var publisher = {};
 
 	// Create a map with providerId: providerModule
-	var providerMap = _.chain(arguments).map(function(argument) {
+	var providerMap = _.chain(arguments).map(function (argument) {
 		return argument instanceof Provider && argument.isPublishEnabled === true && [
 			argument.providerId,
 			argument
@@ -35,24 +34,24 @@ define([
 	}).compact().object().value();
 
 	// Retrieve publish locations from storage
-	(function() {
+	(function () {
 		var publishIndexMap = {};
-		_.each(fileSystem, function(fileDesc) {
-			utils.retrieveIndexArray(fileDesc.fileIndex + ".publish").forEach(function(publishIndex) {
+		_.each(fileSystem, function (fileDesc) {
+			utils.retrieveIndexArray(fileDesc.fileIndex + ".publish").forEach(function (publishIndex) {
 				try {
 					var publishAttributes = JSON.parse(storage[publishIndex]);
 					// Store publishIndex
 					publishAttributes.publishIndex = publishIndex;
 					// Replace provider ID by provider module in attributes
 					var provider = providerMap[publishAttributes.provider];
-					if(!provider) {
+					if (!provider) {
 						throw new Error("Invalid provider ID: " + publishAttributes.provider);
 					}
 					publishAttributes.provider = provider;
 					fileDesc.publishLocations[publishIndex] = publishAttributes;
 					publishIndexMap[publishIndex] = publishAttributes;
 				}
-				catch(e) {
+				catch (e) {
 					// storage can be corrupted
 					eventMgr.onError(e);
 					// Remove publish location
@@ -62,16 +61,16 @@ define([
 		});
 
 		// Clean fields from deleted files in local storage
-		Object.keys(storage).forEach(function(key) {
+		Object.keys(storage).forEach(function (key) {
 			var match = key.match(/publish\.\S+/);
-			if(match && !publishIndexMap.hasOwnProperty(match[0])) {
+			if (match && !publishIndexMap.hasOwnProperty(match[0])) {
 				storage.removeItem(key);
 			}
 		});
 	})();
 
 	// Apply template to the current document
-	publisher.applyTemplate = function(fileDesc, publishAttributes, html) {
+	publisher.applyTemplate = function (fileDesc, publishAttributes, html) {
 		try {
 			var template = (publishAttributes && publishAttributes.customTmpl) || settings.template;
 			return _.template(template, {
@@ -85,7 +84,7 @@ define([
 				publishAttributes: publishAttributes
 			});
 		}
-		catch(e) {
+		catch (e) {
 			eventMgr.onError(e);
 			return e.message;
 		}
@@ -93,16 +92,16 @@ define([
 
 	// Used to get content to publish
 	function getPublishContent(fileDesc, publishAttributes, html) {
-		if(publishAttributes.format === undefined) {
+		if (publishAttributes.format === undefined) {
 			publishAttributes.format = utils.getInputRadio("radio-publish-format");
-			if(publishAttributes.format == 'template' && utils.getInputChecked("#checkbox-publish-custom-template")) {
+			if (publishAttributes.format == 'template' && utils.getInputChecked("#checkbox-publish-custom-template")) {
 				publishAttributes.customTmpl = utils.getInputValue('#textarea-publish-custom-template');
 			}
 		}
-		if(publishAttributes.format == "markdown") {
+		if (publishAttributes.format == "markdown") {
 			return fileDesc.content;
 		}
-		else if(publishAttributes.format == "html") {
+		else if (publishAttributes.format == "html") {
 			return html.withoutComments;
 		}
 		else {
@@ -118,7 +117,7 @@ define([
 	function publishLocation(callback, errorFlag) {
 
 		// No more publish location for this document
-		if(publishAttributesList.length === 0) {
+		if (publishAttributesList.length === 0) {
 			callback(errorFlag);
 			return;
 		}
@@ -131,14 +130,14 @@ define([
 		var title = (publishFileDesc.frontMatter || {}).title || publishFileDesc.title;
 
 		// Call the provider
-		publishAttributes.provider.publish(publishAttributes, publishFileDesc.frontMatter, title, content, function(error) {
-			if(error !== undefined) {
+		publishAttributes.provider.publish(publishAttributes, publishFileDesc.frontMatter, title, content, function (error) {
+			if (error !== undefined) {
 				var errorMsg = error.toString();
-				if(errorMsg.indexOf("|removePublish") !== -1) {
+				if (errorMsg.indexOf("|removePublish") !== -1) {
 					publishFileDesc.removePublishLocation(publishAttributes);
 					eventMgr.onPublishRemoved(publishFileDesc, publishAttributes);
 				}
-				if(errorMsg.indexOf("|stopPublish") !== -1) {
+				if (errorMsg.indexOf("|stopPublish") !== -1) {
 					callback(error);
 					return;
 				}
@@ -149,7 +148,7 @@ define([
 
 	// Get the html from the onPreviewFinished callback
 	var currentHTML;
-	eventMgr.addListener("onPreviewFinished", function(htmlWithComments, htmlWithoutComments) {
+	eventMgr.addListener("onPreviewFinished", function (htmlWithComments, htmlWithoutComments) {
 		currentHTML = {
 			withComments: htmlWithComments,
 			withoutComments: htmlWithoutComments
@@ -158,14 +157,14 @@ define([
 
 	// Listen to offline status changes
 	var isOffline = false;
-	eventMgr.addListener("onOfflineChanged", function(isOfflineParam) {
+	eventMgr.addListener("onOfflineChanged", function (isOfflineParam) {
 		isOffline = isOfflineParam;
 	});
 
 	var publishRunning = false;
-	publisher.publish = function() {
+	publisher.publish = function () {
 		// If publish is running or offline
-		if(publishRunning === true || isOffline === true) {
+		if (publishRunning === true || isOffline === true) {
 			return;
 		}
 
@@ -174,10 +173,10 @@ define([
 		publishFileDesc = fileMgr.currentFile;
 		publishHTML = currentHTML;
 		publishAttributesList = _.values(publishFileDesc.publishLocations);
-		publishLocation(function(errorFlag) {
+		publishLocation(function (errorFlag) {
 			publishRunning = false;
 			eventMgr.onPublishRunning(false);
-			if(errorFlag === undefined) {
+			if (errorFlag === undefined) {
 				eventMgr.onPublishSuccess(publishFileDesc);
 			}
 		});
@@ -188,7 +187,7 @@ define([
 		var publishIndex;
 		do {
 			publishIndex = "publish." + utils.id();
-		} while(_.has(storage, publishIndex));
+		} while (_.has(storage, publishIndex));
 		publishAttributes.publishIndex = publishIndex;
 		fileDesc.addPublishLocation(publishAttributes);
 		eventMgr.onNewPublishSuccess(fileDesc, publishAttributes);
@@ -213,10 +212,10 @@ define([
 
 		// Load preferences
 		var publishPreferences = utils.retrieveIgnoreError(provider.providerId + ".publishPreferences");
-		if(publishPreferences) {
-			_.each(provider.publishPreferencesInputIds, function(inputId) {
+		if (publishPreferences) {
+			_.each(provider.publishPreferencesInputIds, function (inputId) {
 				var publishPreferenceValue = publishPreferences[inputId];
-				if(_.isBoolean(publishPreferenceValue)) {
+				if (_.isBoolean(publishPreferenceValue)) {
 					utils.setInputChecked("#input-publish-" + inputId, publishPreferenceValue);
 				}
 				else {
@@ -236,7 +235,7 @@ define([
 	function performNewLocation(event) {
 		var provider = newLocationProvider;
 		var publishAttributes = provider.newPublishAttributes(event);
-		if(publishAttributes === undefined) {
+		if (publishAttributes === undefined) {
 			return;
 		}
 
@@ -244,8 +243,8 @@ define([
 		var fileDesc = fileMgr.currentFile;
 		var content = getPublishContent(fileDesc, publishAttributes, currentHTML);
 		var title = (fileDesc.frontMatter && fileDesc.frontMatter.title) || fileDesc.title;
-		provider.publish(publishAttributes, fileDesc.frontMatter, title, content, function(error) {
-			if(error === undefined) {
+		provider.publish(publishAttributes, fileDesc.frontMatter, title, content, function (error) {
+			if (error === undefined) {
 				publishAttributes.provider = provider;
 				createPublishIndex(fileDesc, publishAttributes);
 			}
@@ -254,9 +253,9 @@ define([
 		// Store input values as preferences for next time we open the publish
 		// dialog
 		var publishPreferences = {};
-		_.each(provider.publishPreferencesInputIds, function(inputId) {
+		_.each(provider.publishPreferencesInputIds, function (inputId) {
 			var inputElt = document.getElementById("input-publish-" + inputId);
-			if(inputElt.type == 'checkbox') {
+			if (inputElt.type == 'checkbox') {
 				publishPreferences[inputId] = inputElt.checked;
 			}
 			else {
@@ -276,23 +275,23 @@ define([
 		'   </a>',
 		'</li>'
 	].join('');
-	eventMgr.addListener("onReady", function() {
-		if(window.viewerMode === false) {
+	eventMgr.addListener("onReady", function () {
+		if (window.viewerMode === false) {
 			// Add every provider in the panel menu
 			var publishMenuElt = document.querySelector('.menu-panel .publish-on-provider-list');
-			var publishMenuHtml = _.reduce(providerMap, function(result, provider) {
+			var publishMenuHtml = _.reduce(providerMap, function (result, provider) {
 				return result + _.template(initPublishButtonTmpl, {
 					provider: provider
 				});
 			}, '');
 			publishMenuElt.innerHTML = publishMenuHtml;
-			_.each(providerMap, function(provider) {
+			_.each(providerMap, function (provider) {
 				// Click on open publish dialog
-				$(publishMenuElt.querySelector('.action-init-publish-' + provider.providerId)).click(function() {
+				$(publishMenuElt.querySelector('.action-init-publish-' + provider.providerId)).click(function () {
 					initNewLocation(provider);
 				});
 				// Click on perform new publication
-				$(".action-publish-" + provider.providerId).click(function() {
+				$(".action-publish-" + provider.providerId).click(function () {
 					initNewLocation(provider);
 				});
 			});
@@ -304,72 +303,55 @@ define([
 			toggle: false
 		});
 		var $customTmplTextareaElt = $('#textarea-publish-custom-template');
-		var doCustomTmplCollapse = _.debounce(function() {
+		var doCustomTmplCollapse = _.debounce(function () {
 			$customTmplCollapseElt.collapse(utils.getInputRadio("radio-publish-format") == 'template' ? 'show' : 'hide');
 		}, 100);
-		$("#checkbox-publish-custom-template").change(function() {
+		$("#checkbox-publish-custom-template").change(function () {
 			$customTmplTextareaElt.prop('disabled', !this.checked);
 		});
-		$("input:radio[name=radio-publish-format]").change(function() {
+		$("input:radio[name=radio-publish-format]").change(function () {
 			doCustomTmplCollapse();
 		});
-		$('.modal-publish').on('hidden.bs.modal', function() {
+		$('.modal-publish').on('hidden.bs.modal', function () {
 			$customTmplCollapseElt.collapse('hide');
 		});
 
 		// Save As menu items
-		$(".action-download-md").click(function() {
+		$(".action-download-md").click(function () {
 			var content = fileMgr.currentFile.content;
 			var title = fileMgr.currentFile.title;
 			utils.saveAs(content, title + ".md");
 		});
-		$(".action-download-html").click(function() {
+		$(".action-download-html").click(function () {
 			var title = fileMgr.currentFile.title;
 			utils.saveAs(currentHTML.withoutComments, title + ".html");
 		});
-		$(".action-download-template").click(function() {
+		$(".action-download-template").click(function () {
 			var fileDesc = fileMgr.currentFile;
 			var content = publisher.applyTemplate(fileDesc, undefined, currentHTML);
 			utils.saveAs(content, fileDesc.title + (settings.template.indexOf("documentHTML") === -1 ? ".md" : ".html"));
 		});
-		var monetize = new MonetizeJS({
-			applicationID: 'ESTHdCYOi18iLhhO'
-		});
-		$(".action-download-pdf").click(function() {
+		$(".action-download-pdf").click(function () {
 			var fileDesc = fileMgr.currentFile;
 			var content = publisher.applyTemplate(fileDesc, {
 				customTmpl: settings.pdfTemplate
 			}, currentHTML);
 			var task = new AsyncTask();
-			var pdf, token;
-			task.onRun(function() {
-				if(isOffline === true) {
+			var pdf;
+			task.onRun(function () {
+				if (isOffline) {
 					eventMgr.onError("Operation not available in offline mode.");
-					return task.chain();
-				}
-				if(!eventMgr.isSponsor) {
-					$('.modal-sponsor-only').modal('show');
-					return task.chain();
-				}
-				monetize.getTokenImmediate(function(err, result) {
-					token = result;
-					task.chain();
-				});
-			});
-			task.onRun(function() {
-				if(!token) {
 					return task.chain();
 				}
 				var xhr = new XMLHttpRequest();
 				xhr.open('POST', constants.PDF_EXPORT_URL + '?' + $.param({
-					token: token,
 					options: settings.pdfOptions
 				}), true);
 				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 				xhr.responseType = 'blob';
-				xhr.onreadystatechange = function() {
-					if(this.readyState == 4) {
-						if(this.status == 200) {
+				xhr.onreadystatechange = function () {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
 							pdf = this.response;
 						}
 						else {
@@ -380,7 +362,7 @@ define([
 				};
 				xhr.send(content);
 			});
-			task.onSuccess(function() {
+			task.onSuccess(function () {
 				pdf && utils.saveAs(pdf, fileMgr.currentFile.title + ".pdf");
 			});
 			task.enqueue();

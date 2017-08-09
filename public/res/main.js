@@ -67,11 +67,11 @@ requirejs.config({
 		raphael: 'bower-libs/raphael/raphael',
 		'flow-chart': 'bower-libs/flowchart/release/flowchart.amd-1.3.4.min',
 		flowchart: 'bower-libs/flowchart/release/flowchart-1.3.4.min',
-		monetizejs: 'bower-libs/monetizejs/src/monetize',
 		'to-markdown': 'bower-libs/to-markdown/src/to-markdown',
 		waitForImages: 'bower-libs/waitForImages/dist/jquery.waitforimages',
 		MathJax: 'bower-libs/MathJax/MathJax',
-		alertify: 'bower-libs/alertify.js/lib/alertify'
+		alertify: 'bower-libs/alertify.js/lib/alertify',
+		'markdown-pdf': 'libs/markdown-pdf/index'
 	},
 	shim: {
 		underscore: {
