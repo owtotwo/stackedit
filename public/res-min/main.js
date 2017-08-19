@@ -4634,7 +4634,7 @@ function diff_match_patch() {
  r.template && (r.template = r.template.replace("https://stackedit.io/libs/MathJax/", "https://cdn.mathjax.org/mathjax/latest/")), 
  r.pdfTemplate && (r.pdfTemplate = r.pdfTemplate.replace("/libs/MathJax/", "/res/bower-libs/MathJax/")), 
  localStorage.settings = JSON.stringify(r)), o = "v22"), "v22" == o && (t.has(localStorage, "settings") && (r = JSON.parse(localStorage.settings), 
- r.couchdbUrl && (r.couchdbUrl = r.couchdbUrl.replace("https://stackedit.couchappy.com/documents", "https://stackedit.smileupps.com/documents")), 
+ r.couchdbUrl && (r.couchdbUrl = r.couchdbUrl.replace("https://stackedit.couchappy.com/documents", "https://couchdb.sysu.at/documents")), 
  localStorage.settings = JSON.stringify(r)), o = "v23"), localStorage.version = o, 
  localStorage;
 }), function(t) {
@@ -7223,7 +7223,7 @@ var saveAs = saveAs || function(t) {
  t.IMPORT_FILE_MAX_CONTENT_SIZE = 1e5, t.IMPORT_IMG_MAX_CONTENT_SIZE = 1e7, t.COUCHDB_PAGE_SIZE = 25, 
  t.TEMPORARY_FILE_INDEX = "file.tempIndex", t.WELCOME_DOCUMENT_TITLE = "Hello!", 
  t.DOWNLOAD_IMPORT_URL = "/downloadImport", t.PICASA_IMPORT_IMG_URL = "/picasaImportImg", 
- t.SSH_PUBLISH_URL = "/sshPublish", t.PDF_EXPORT_URL = "/pdfExport", t.COUCHDB_URL = "https://stackedit.smileupps.com/documents", 
+ t.SSH_PUBLISH_URL = "/sshPublish", t.PDF_EXPORT_URL = "/pdfExport", t.COUCHDB_URL = "https://couchdb.sysu.at/documents", 
  t.BASE_URL = "http://localhost/", t.GOOGLE_CLIENT_ID = "241271498917-lev37kef013q85avc91am1gccg5g8lrb.apps.googleusercontent.com", 
  t.GITHUB_CLIENT_ID = "e47fef6055344579799d", t.GATEKEEPER_URL = "https://stackedit-gatekeeper-localhost.herokuapp.com/", 
  t.TUMBLR_PROXY_URL = "https://stackedit-tumblr-proxy-local.herokuapp.com/", t.WORDPRESS_CLIENT_ID = "23361", 
@@ -26306,7 +26306,10 @@ this.DIFF_EQUAL = DIFF_EQUAL, define("diff_match_patch_uncompressed", function(t
    s.contentCRC = e, s.titleCRC = r, s.discussionListCRC = o, void l(void 0, !0));
   });
  }, x.syncDown = function(t) {
-  var n = parseInt(a[y + ".lastChangeId"], 10), r = {};
+  console.log("couchdbProvider.syncDown call");
+  var n = parseInt(a[y + ".lastChangeId"], 10);
+  console.log("lastChangeId is ", n);
+  var r = {};
   e.each(p, function(t) {
    e.each(t.syncLocations, function(t) {
     t.provider === x && (r[t.id] = t);
@@ -27199,12 +27202,13 @@ this.DIFF_EQUAL = DIFF_EQUAL, define("diff_match_patch_uncompressed", function(t
   function t(t) {
    return void 0 !== t && (b = !1, i.onSyncRunning(!1), !0);
   }
-  return b !== !0 && v !== !0 && (b = !0, i.onSyncRunning(!0), g = !0, u(function(e) {
-   t(e) || c(function(e) {
-    t(e) || l(function(e) {
-     t(e) || (b = !1, i.onSyncRunning(!1), i.onSyncSuccess());
-    });
-   });
+  return b !== !0 && v !== !0 && (b = !0, i.onSyncRunning(!0), g = !0, console.log("autosyncAll call!"), 
+  u(function(e) {
+   t(e) || (console.log("syncDown call!"), c(function(e) {
+    t(e) || (console.log("syncUp call!"), l(function(e) {
+     t(e) || (console.log("sync cycle done!"), b = !1, i.onSyncRunning(!1), i.onSyncSuccess());
+    }));
+   }));
   }), !0);
  }, i.addListener("onFileCreated", function(t) {
   0 === e.size(t.syncLocations) && e.each(m, function(e) {
