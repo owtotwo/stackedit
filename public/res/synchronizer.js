@@ -253,18 +253,22 @@ define([
 			return false;
 		}
 
+		console.log("autosyncAll call!");
 		autosyncAll(function(error) {
 			if(isError(error)) {
 				return;
 			}
+			console.log("syncDown call!");		
 			syncDown(function(error) {
 				if(isError(error)) {
 					return;
 				}
+				console.log("syncUp call!");
 				syncUp(function(error) {
 					if(isError(error)) {
 						return;
 					}
+					console.log("sync cycle done!");
 					syncRunning = false;
 					eventMgr.onSyncRunning(false);
 					eventMgr.onSyncSuccess();
